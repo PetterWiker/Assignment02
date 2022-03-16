@@ -1,9 +1,6 @@
 import xlsxwriter
 import matplotlib.pyplot as plt
 import time
-import plotlib
-import laminatelib
-import numpy as np
 
 
 class UniversalTestMachine:
@@ -13,12 +10,9 @@ class UniversalTestMachine:
         self.resolution = resolution
         self.max_load = max_load
         self.data = {}
-
-        #self.perform_bending_test()
-        #self.save_data_to_excel()
         pass
 
-    def perform_bending_test(self, laminates, break_crit=0.8):
+    def perform_bending_test(self, laminates, break_crit=0.8, max_displacement=30):
         for laminate in laminates:
             loads = []
             displacements = []
@@ -26,7 +20,7 @@ class UniversalTestMachine:
             displacement = 0
             load = 0
             max_load = 0
-            while not laminate.is_broken and load < self.max_load and displacement <= 20:
+            while not laminate.is_broken and load < self.max_load and displacement <= max_displacement:
                 load = laminate.deflection_to_load(displacement, L=self.span)
                 loads.append(load)
                 displacements.append(displacement)
@@ -48,7 +42,7 @@ class UniversalTestMachine:
 
     def save_data_to_excel(self):
         timestamp = time.strftime("%Y%m%d%H%M%S")
-        workbook = xlsxwriter.Workbook("data/3pt_bending_{}.xlsx".format(timestamp))
+        workbook = xlsxwriter.Workbook("Assignment02/data/3pt_bending_{}.xlsx".format(timestamp))
 
         for name, laminate in self.data.items():
             worksheet = workbook.add_worksheet(name=name)

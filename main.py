@@ -48,7 +48,7 @@ laminates.append(Laminate(layup_E, name="E", width=20.0))
 def main():
     UTM = UniversalTestMachine(span=100, resolution=0.01)
     UTM.perform_bending_test(laminates)
-    UTM.plot_data()
+    #UTM.plot_data()
     UTM.save_data_to_excel()
     UTM.reset_data()
     pass

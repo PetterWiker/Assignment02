@@ -4,11 +4,13 @@ import copy
 
 class Laminate:
 
-    def __init__(self, layup, name, width):
+    def __init__(self, layup, name, width, damage_allowed=False, damage_reduction_factor=0.1):
         self.is_broken = False
         self.layup = layup
         self.name = name
         self.width = width
+        self.damage_allowed = damage_allowed
+        self.damage_reduction_factor = damage_reduction_factor
         self.thickness = laminatelib.laminateThickness(self.layup)
         self.A = laminatelib.computeA(self.layup)
         self.B = laminatelib.computeB(self.layup)
@@ -16,10 +18,9 @@ class Laminate:
         self.ABD = laminatelib.laminateStiffnessMatrix(self.layup)
         self.loads, self.defor = [], []
         self.EI = self.compute_bending_stiffness()
-        print("Material {}:".format(self.name), self.EI)
+
         self.kappa_x = 0
         self.displacement = 0
-        self.damage_reduction_factor = 0.1
         self.damage_state = ["active" for layer in self.layup]
         pass
 
@@ -28,16 +29,12 @@ class Laminate:
         pass
 
     def check_ply_stress_states(self):
-        """ This function should check the stress state of each ply,
-        implement failure criteria and toggle self.is_broken if needed
 
-        :return:
-        """
         # Go through the layers, check for damage
         layer_results = laminatelib.layerResults(self.layup, self.defor)
         for idx, layer in enumerate(self.layup):
             layer_state = layer_results[idx]
-            if layer_state["fail"]["MS"]["top"] > 1 or layer_state["fail"]["MS"]["bot"] > 1:
+            if (layer_state["fail"]["MS"]["top"] > 1 or layer_state["fail"]["MS"]["bot"] > 1) and self.damage_allowed:
                 self.damage_state[idx] = "broken"
                 old_material = layer["mat"]
                 updated_material = copy.deepcopy(layer["mat"])
